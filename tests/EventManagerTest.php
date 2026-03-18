@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Doctrine\Tests\Common;
 
+use function array_keys;
+
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventManager;
 use Doctrine\Common\EventSubscriber;
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 
-use function array_keys;
+use ReflectionProperty;
 
 class EventManagerTest extends TestCase
 {

@@ -60,6 +60,13 @@ class EventManager implements EventManagerInterface
         $oid = spl_object_id($listener);
 
         foreach ((array) $events as $event) {
+            // Reject magic method names to prevent accidental invocation of __destruct, __toString, etc.
+            if (str_starts_with($event, '__')) {
+                throw new \InvalidArgumentException(
+                    sprintf('Event name "%s" is not allowed: magic method names cannot be used as event names.', $event)
+                );
+            }
+
             // Overrides listener if a previous one was associated already
             // Prevents duplicate listeners on same event (same instance only)
             $this->listeners[$event][$oid] = $listener;

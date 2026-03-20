@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common;
 
 /**
@@ -9,7 +8,7 @@ namespace Doctrine\Common;
  *
  * Provides methods to query registered listeners without modifying them.
  */
-interface EventListenerIntrospector extends EventDispatcher
+interface Event_Listener_Introspector extends Event_Dispatcher
 {
     /**
      * Gets the listeners of a specific event.
@@ -18,17 +17,15 @@ interface EventListenerIntrospector extends EventDispatcher
      *
      * @return object[]
      */
-    public function getListeners(string $event): array;
-
+    public function get_listeners(string $event): array;
     /**
      * Gets all listeners keyed by event name.
      *
      * @return array<string, object[]>
      */
-    public function getAllListeners(): array;
-
+    public function get_all_listeners(): array;
     /**
      * Checks whether an event has any registered listeners.
      */
-    public function hasListeners(string $event): bool;
+    public function has_listeners(string $event): bool;
 }

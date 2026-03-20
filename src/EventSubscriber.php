@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common;
 
 /**
@@ -10,12 +9,12 @@ namespace Doctrine\Common;
  * {@link getSubscribedEvents} and registers the subscriber as a listener for all
  * returned events.
  */
-interface EventSubscriber
+interface Event_Subscriber
 {
     /**
      * Returns an array of events this subscriber wants to listen to.
      *
      * @return string[]
      */
-    public function getSubscribedEvents();
+    public function get_subscribed_events();
 }

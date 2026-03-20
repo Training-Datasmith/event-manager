@@ -1,13 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common;
 
 /**
  * Interface for registering and unregistering event subscribers.
  */
-interface EventSubscriberRegistry extends EventDispatcher
+interface Event_Subscriber_Registry extends Event_Dispatcher
 {
     /**
      * Adds an EventSubscriber.
@@ -15,13 +14,12 @@ interface EventSubscriberRegistry extends EventDispatcher
      * The subscriber is asked for all the events it is interested in and added
      * as a listener for these events.
      */
-    public function addEventSubscriber(EventSubscriber $subscriber): void;
-
+    public function add_event_subscriber(Event_Subscriber $subscriber): void;
     /**
      * Removes an EventSubscriber.
      *
      * The subscriber is asked for all the events it is interested in and removed
      * as a listener for these events.
      */
-    public function removeEventSubscriber(EventSubscriber $subscriber): void;
+    public function remove_event_subscriber(Event_Subscriber $subscriber): void;
 }

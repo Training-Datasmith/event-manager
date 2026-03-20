@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common;
 
 /**
@@ -11,13 +10,12 @@ namespace Doctrine\Common;
  * information to an event handler when an event is raised. The single empty EventArgs
  * instance can be obtained through {@link getEmptyInstance}.
  */
-class EventArgs
+class Event_Args
 {
     /**
      * Single instance of EventArgs.
      */
-    private static EventArgs|null $emptyEventArgsInstance = null;
-
+    private static Event_Args|null $empty_event_args_instance = null;
     /**
      * Gets the single, empty and immutable EventArgs instance.
      *
@@ -30,8 +28,8 @@ class EventArgs
      * @link https://msdn.microsoft.com/en-us/library/system.eventargs.aspx
      * @see EventManager::dispatchEvent
      */
-    public static function getEmptyInstance(): EventArgs
+    public static function get_empty_instance(): Event_Args
     {
-        return self::$emptyEventArgsInstance ??= new EventArgs();
+        return self::$empty_event_args_instance ??= new Event_Args();
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 namespace Doctrine\Common;
 
 /**
@@ -10,7 +9,7 @@ namespace Doctrine\Common;
  * This minimal interface is suitable for type-hinting in code that only needs
  * to dispatch events without configuring listeners.
  */
-interface EventDispatcher
+interface Event_Dispatcher
 {
     /**
      * Dispatches an event to all registered listeners.
@@ -20,5 +19,5 @@ interface EventDispatcher
      * @param EventArgs|null $eventArgs The event arguments to pass to the event handlers/listeners.
      *                                  If not supplied, the single empty EventArgs instance is used.
      */
-    public function dispatchEvent(string $eventName, EventArgs|null $eventArgs = null): void;
+    public function dispatch_event(string $event_name, Event_Args|null $event_args = null): void;
 }

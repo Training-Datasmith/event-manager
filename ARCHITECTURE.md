@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Doctrine's EventManager is the central event-listener system used across Doctrine ORM, DBAL, and related packages. It provides observer-pattern wiring: listeners register interest in named events, and callers dispatch those events to trigger all registered handlers.
+Doctrine's Event_Manager is the central event-listener system used across Doctrine ORM, DBAL, and related packages. It provides observer-pattern wiring: listeners register interest in named events, and callers dispatch those events to trigger all registered handlers.
 
 ## Directory Structure
 
@@ -26,7 +26,7 @@ tests/
 - **Identity-keyed listeners** — `spl_object_id()` prevents the same instance from registering twice for the same event, avoiding duplicate invocations.
 - **Magic-method guard** — event names beginning with `__` are rejected to prevent accidental invocation of `__destruct`, `__clone`, etc.
 - **Method-name dispatch** — the event name doubles as the method name called on each listener (`$listener->{$eventName}($args)`), keeping registration friction low.
-- **EventArgs immutable singleton** — `Event_Args::get_empty_instance()` avoids allocations for fire-and-forget events that carry no data.
+- **Event_Args immutable singleton** — `Event_Args::get_empty_instance()` avoids allocations for fire-and-forget events that carry no data.
 
 ## Extension Points
 

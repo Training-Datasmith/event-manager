@@ -9,14 +9,14 @@ namespace Doctrine\Common;
 interface Event_Subscriber_Registry extends Event_Dispatcher
 {
     /**
-     * Adds an EventSubscriber.
+     * Adds an Event_Subscriber.
      *
      * The subscriber is asked for all the events it is interested in and added
      * as a listener for these events.
      */
     public function add_event_subscriber(Event_Subscriber $subscriber): void;
     /**
-     * Removes an EventSubscriber.
+     * Removes an Event_Subscriber.
      *
      * The subscriber is asked for all the events it is interested in and removed
      * as a listener for these events.

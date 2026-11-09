@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Example: Registering and dispatching events with Doctrine EventManager.
+ * Example: Registering and dispatching events with Doctrine Event_Manager.
  */
 
 use Doctrine\Common\Event_Args;

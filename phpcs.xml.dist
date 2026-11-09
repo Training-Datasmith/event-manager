@@ -18,13 +18,13 @@
     <rule ref="Doctrine" />
 
     <rule ref="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming.SuperfluousSuffix">
-        <exclude-pattern>src/EventManagerInterface.php</exclude-pattern>
+        <exclude-pattern>src/Event_Manager_Interface.php</exclude-pattern>
     </rule>
 
     <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint">
         <!-- This interface is commonly implemented by userland code.
              We omit the return type to ease the migration to 2.0 -->
-        <exclude-pattern>src/EventSubscriber.php</exclude-pattern>
+        <exclude-pattern>src/Event_Subscriber.php</exclude-pattern>
     </rule>
 
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
@@ -36,6 +36,6 @@
     </rule>
 
     <rule ref="Squiz.Commenting.FunctionComment.WrongStyle">
-        <exclude-pattern>tests/EventManagerTest.php</exclude-pattern>
+        <exclude-pattern>tests/Event_Manager_Test.php</exclude-pattern>
     </rule>
 </ruleset>

@@ -4,9 +4,9 @@ declare (strict_types=1);
 namespace Doctrine\Common;
 
 /**
- * An EventSubscriber knows what events it is interested in.
- * If an EventSubscriber is added to an EventManager, the manager invokes
- * {@link getSubscribedEvents} and registers the subscriber as a listener for all
+ * An Event_Subscriber knows what events it is interested in.
+ * If an Event_Subscriber is added to an Event_Manager, the manager invokes
+ * {@link get_subscribed_events} and registers the subscriber as a listener for all
  * returned events.
  */
 interface Event_Subscriber

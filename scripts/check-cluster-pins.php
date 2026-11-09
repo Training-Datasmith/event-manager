@@ -43,22 +43,24 @@ $installedPhp = require $installedPhpPath;
  */
 function merge_installed_json_packages(array $installedJson): array
 {
-  $packages = $installedJson['packages'] ?? [];
+    $packages = $installedJson['packages'] ?? [];
 
-  if (isset($installedJson['packages-dev']) && is_array($installedJson['packages-dev'])) {
-      $packages = array_merge($packages, $installedJson['packages-dev']);
-  }
+    if (isset($installedJson['packages-dev']) && is_array($installedJson['packages-dev'])) {
+        $packages = array_merge($packages, $installedJson['packages-dev']);
+    }
 
-  return $packages;
+    return $packages;
 }
 
 /**
  * @param array{versions: array<string, array<string, mixed>>} $installedPhp
  * @param list<array<string, mixed>> $jsonPackages
+ *
+ * @return list<string>
  */
-function assert_cluster_pins(array $expected, array $installedPhp, array $jsonPackages): int
+function collect_pin_failures(array $expected, array $installedPhp, array $jsonPackages): array
 {
-    $failed = false;
+    $failures = [];
     $versions = $installedPhp['versions'] ?? [];
 
     /** @var array<string, string> $jsonReferences */
@@ -72,78 +74,146 @@ function assert_cluster_pins(array $expected, array $installedPhp, array $jsonPa
 
     foreach ($expected as $name => $want) {
         if (!isset($versions[$name])) {
-            fwrite(STDERR, sprintf("check-cluster-pins: %s is not installed.\n", $name));
-            $failed = true;
+            $failures[] = sprintf('check-cluster-pins: %s is not installed.', $name);
             continue;
         }
 
         $pkg = $versions[$name];
         $aliases = $pkg['aliases'] ?? [];
         if (!in_array($want['alias'], $aliases, true)) {
-            fwrite(STDERR, sprintf(
-                "check-cluster-pins: %s alias mismatch (expected %s in aliases %s).\n",
+            $failures[] = sprintf(
+                'check-cluster-pins: %s alias mismatch (expected %s in aliases %s).',
                 $name,
                 $want['alias'],
                 json_encode($aliases)
-            ));
-            $failed = true;
+            );
         }
 
         $reference = $pkg['reference'] ?? null;
         if (!is_string($reference) || $reference === '') {
-            fwrite(STDERR, sprintf("check-cluster-pins: %s has no reference in installed.php.\n", $name));
-            $failed = true;
+            $failures[] = sprintf('check-cluster-pins: %s has no reference in installed.php.', $name);
         } elseif (!hash_equals(strtolower($want['reference']), strtolower($reference))) {
-            fwrite(STDERR, sprintf(
-                "check-cluster-pins: %s installed.php reference mismatch (expected %s, got %s).\n",
+            $failures[] = sprintf(
+                'check-cluster-pins: %s installed.php reference mismatch (expected %s, got %s).',
                 $name,
                 $want['reference'],
                 $reference
-            ));
-            $failed = true;
+            );
         }
 
         if (!isset($jsonReferences[$name])) {
-            fwrite(STDERR, sprintf("check-cluster-pins: %s is missing from installed.json packages.\n", $name));
-            $failed = true;
+            $failures[] = sprintf('check-cluster-pins: %s is missing from installed.json packages.', $name);
             continue;
         }
 
         if (!hash_equals(strtolower($want['reference']), $jsonReferences[$name])) {
-            fwrite(STDERR, sprintf(
-                "check-cluster-pins: %s installed.json source.reference mismatch (expected %s, got %s).\n",
+            $failures[] = sprintf(
+                'check-cluster-pins: %s installed.json source.reference mismatch (expected %s, got %s).',
                 $name,
                 $want['reference'],
                 $jsonReferences[$name]
-            ));
-            $failed = true;
+            );
         }
     }
 
-    return $failed ? 1 : 0;
+    return $failures;
+}
+
+/**
+ * @param list<string> $failures
+ */
+function emit_pin_failures(array $failures): void
+{
+    foreach ($failures as $failure) {
+        fwrite(STDERR, $failure . "\n");
+    }
+}
+
+/**
+ * @param list<string> $failures
+ */
+function failures_include_installed_php_reference_mismatch(array $failures, string $package): bool
+{
+    $needle = sprintf('check-cluster-pins: %s installed.php reference mismatch', $package);
+
+    foreach ($failures as $failure) {
+        if (str_starts_with($failure, $needle)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @param list<string> $failures
+ */
+function failures_include_installed_json_reference_mismatch(array $failures, string $package): bool
+{
+    $needle = sprintf('check-cluster-pins: %s installed.json source.reference mismatch', $package);
+
+    foreach ($failures as $failure) {
+        if (str_starts_with($failure, $needle)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @param list<string> $failures
+ */
+function failures_include_installed_json_issue(array $failures): bool
+{
+    foreach ($failures as $failure) {
+        if (str_contains($failure, 'installed.json')) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * @param list<string> $failures
+ */
+function failures_include_installed_php_reference_issue(array $failures, string $package): bool
+{
+    foreach ($failures as $failure) {
+        if (!str_contains($failure, $package)) {
+            continue;
+        }
+        if (str_contains($failure, 'installed.php reference')) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
  * @param array{versions: array<string, array<string, mixed>>} $installedPhp
+ *
+ * @return array{versions: array<string, array<string, mixed>>}
  */
-function assert_installed_php_reference_fail(array $installedPhp, string $package, string $wrongReference): int
+function with_wrong_installed_php_reference(array $installedPhp, string $package, string $wrongReference): array
 {
-    $installedPhp = $installedPhp;
-    $installedPhp['versions'][$package]['reference'] = $wrongReference;
+    $copy = $installedPhp;
+    $copy['versions'][$package]['reference'] = $wrongReference;
 
-    return assert_cluster_pins(
-        [$package => ['alias' => '2.2.99', 'reference' => '63f848a4b1dbe2f2cb87acb3ff32596661e45417']],
-        $installedPhp,
-        []
-    );
+    return $copy;
 }
 
 /**
  * @param list<array<string, mixed>> $jsonPackages
+ *
+ * @return list<array<string, mixed>>
  */
-function assert_installed_json_reference_fail(array $jsonPackages, string $package, string $wrongReference): int
+function with_wrong_installed_json_reference(array $jsonPackages, string $package, string $wrongReference): array
 {
-    foreach ($jsonPackages as &$pkg) {
+    $copy = $jsonPackages;
+    foreach ($copy as $index => $pkg) {
         if (($pkg['name'] ?? '') !== $package) {
             continue;
         }
@@ -151,37 +221,56 @@ function assert_installed_json_reference_fail(array $jsonPackages, string $packa
             $pkg['source'] = [];
         }
         $pkg['source']['reference'] = $wrongReference;
+        $copy[$index] = $pkg;
+        break;
     }
-    unset($pkg);
 
-    $versions = require __DIR__ . '/../vendor/composer/installed.php';
-
-    return assert_cluster_pins(
-        [$package => ['alias' => '2.2.99', 'reference' => '63f848a4b1dbe2f2cb87acb3ff32596661e45417']],
-        $versions,
-        $jsonPackages
-    );
+    return $copy;
 }
 
 $jsonPackages = merge_installed_json_packages($installedJson);
+$packageName = 'phpstan/phpstan';
 
-$phpDemoExit = assert_installed_php_reference_fail($installedPhp, 'phpstan/phpstan', str_repeat('0', 40));
-if ($phpDemoExit === 0) {
+$phpDemoInstalled = with_wrong_installed_php_reference($installedPhp, $packageName, str_repeat('0', 40));
+$phpDemoFailures = collect_pin_failures($expected, $phpDemoInstalled, $jsonPackages);
+if ($phpDemoFailures === []) {
     fwrite(STDERR, "check-cluster-pins: wrong-SHA demo should have failed on installed.php reference.\n");
+    exit(1);
+}
+if (!failures_include_installed_php_reference_mismatch($phpDemoFailures, $packageName)) {
+    fwrite(STDERR, "check-cluster-pins: installed.php demo did not report an installed.php reference mismatch.\n");
+    emit_pin_failures($phpDemoFailures);
+    exit(1);
+}
+if (failures_include_installed_json_issue($phpDemoFailures)) {
+    fwrite(STDERR, "check-cluster-pins: installed.php demo must not report any installed.json failure.\n");
+    emit_pin_failures($phpDemoFailures);
     exit(1);
 }
 fwrite(STDOUT, "check-cluster-pins: wrong-SHA demo failed on installed.php reference, as required.\n");
 
-$jsonDemoExit = assert_installed_json_reference_fail($jsonPackages, 'phpstan/phpstan', str_repeat('1', 40));
-if ($jsonDemoExit === 0) {
+$jsonDemoPackages = with_wrong_installed_json_reference($jsonPackages, $packageName, str_repeat('1', 40));
+$jsonDemoFailures = collect_pin_failures($expected, $installedPhp, $jsonDemoPackages);
+if ($jsonDemoFailures === []) {
     fwrite(STDERR, "check-cluster-pins: wrong-SHA demo should have failed on installed.json source.reference.\n");
+    exit(1);
+}
+if (!failures_include_installed_json_reference_mismatch($jsonDemoFailures, $packageName)) {
+    fwrite(STDERR, "check-cluster-pins: installed.json demo did not report a source.reference mismatch.\n");
+    emit_pin_failures($jsonDemoFailures);
+    exit(1);
+}
+if (failures_include_installed_php_reference_issue($jsonDemoFailures, $packageName)) {
+    fwrite(STDERR, "check-cluster-pins: installed.json demo must not report an installed.php reference failure.\n");
+    emit_pin_failures($jsonDemoFailures);
     exit(1);
 }
 fwrite(STDOUT, "check-cluster-pins: wrong-SHA demo failed on installed.json source.reference, as required.\n");
 
-$liveExit = assert_cluster_pins($expected, $installedPhp, $jsonPackages);
-if ($liveExit !== 0) {
-    exit($liveExit);
+$liveFailures = collect_pin_failures($expected, $installedPhp, $jsonPackages);
+if ($liveFailures !== []) {
+    emit_pin_failures($liveFailures);
+    exit(1);
 }
 
 fwrite(STDOUT, "check-cluster-pins: all cluster packages match expected SHAs and aliases.\n");

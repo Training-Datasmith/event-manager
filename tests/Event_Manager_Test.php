@@ -20,15 +20,15 @@ class Event_Manager_Test extends TestCase
     private const POST_FOO = 'postFoo';
     private const PRE_BAR  = 'preBar';
 
-    private bool $preFooInvoked  = false;
-    private bool $postFooInvoked = false;
+    private bool $pre_foo_invoked  = false;
+    private bool $post_foo_invoked = false;
     private Event_Manager $event_manager;
 
     protected function setUp(): void
     {
         $this->event_manager   = new Event_Manager();
-        $this->preFooInvoked  = false;
-        $this->postFooInvoked = false;
+        $this->pre_foo_invoked  = false;
+        $this->post_foo_invoked = false;
     }
 
     public function testInitialState(): void
@@ -53,8 +53,8 @@ class Event_Manager_Test extends TestCase
     {
         $this->event_manager->add_event_listener(['preFoo', 'postFoo'], $this);
         $this->event_manager->dispatch_event(self::PRE_FOO);
-        self::assertTrue($this->preFooInvoked);
-        self::assertFalse($this->postFooInvoked);
+        self::assertTrue($this->pre_foo_invoked);
+        self::assertFalse($this->post_foo_invoked);
     }
 
     public function testRemoveEventListener(): void
@@ -101,12 +101,12 @@ class Event_Manager_Test extends TestCase
 
     public function preFoo(Event_Args $e): void
     {
-        $this->preFooInvoked = true;
+        $this->pre_foo_invoked = true;
     }
 
     public function postFoo(Event_Args $e): void
     {
-        $this->postFooInvoked = true;
+        $this->post_foo_invoked = true;
     }
 }
 

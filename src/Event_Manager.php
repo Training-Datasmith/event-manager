@@ -5,7 +5,7 @@ namespace Doctrine\Common;
 
 use function spl_object_id;
 /**
- * The EventManager is the central point of Doctrine's event listener system.
+ * The Event_Manager is the central point of Doctrine's event listener system.
  * Listeners are registered on the manager and events are dispatched through the
  * manager.
  */

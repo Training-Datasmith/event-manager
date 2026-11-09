@@ -6,14 +6,14 @@ namespace Doctrine\Tests\Common;
 
 use function array_keys;
 
-use Doctrine\Common\EventArgs;
-use Doctrine\Common\EventManager;
-use Doctrine\Common\EventSubscriber;
+use Doctrine\Common\Event_Args;
+use Doctrine\Common\Event_Manager;
+use Doctrine\Common\Event_Subscriber;
 use PHPUnit\Framework\TestCase;
 
 use ReflectionProperty;
 
-class EventManagerTest extends TestCase
+class Event_Manager_Test extends TestCase
 {
     /* Some pseudo events */
     private const PRE_FOO  = 'preFoo';
@@ -22,98 +22,98 @@ class EventManagerTest extends TestCase
 
     private bool $preFooInvoked  = false;
     private bool $postFooInvoked = false;
-    private EventManager $eventManager;
+    private Event_Manager $event_manager;
 
     protected function setUp(): void
     {
-        $this->eventManager   = new EventManager();
+        $this->event_manager   = new Event_Manager();
         $this->preFooInvoked  = false;
         $this->postFooInvoked = false;
     }
 
     public function testInitialState(): void
     {
-        self::assertEquals([], $this->eventManager->getAllListeners());
-        self::assertFalse($this->eventManager->hasListeners(self::PRE_FOO));
-        self::assertFalse($this->eventManager->hasListeners(self::POST_FOO));
+        self::assertEquals([], $this->event_manager->get_all_listeners());
+        self::assertFalse($this->event_manager->has_listeners(self::PRE_FOO));
+        self::assertFalse($this->event_manager->has_listeners(self::POST_FOO));
     }
 
     public function testAddEventListener(): void
     {
-        $this->eventManager->addEventListener(['preFoo', 'postFoo'], $this);
-        self::assertTrue($this->eventManager->hasListeners(self::PRE_FOO));
-        self::assertTrue($this->eventManager->hasListeners(self::POST_FOO));
-        self::assertCount(1, $this->eventManager->getListeners(self::PRE_FOO));
-        self::assertCount(1, $this->eventManager->getListeners(self::POST_FOO));
-        self::assertCount(2, $this->eventManager->getAllListeners());
-        self::assertSame(['preFoo', 'postFoo'], array_keys($this->eventManager->getAllListeners()));
+        $this->event_manager->add_event_listener(['preFoo', 'postFoo'], $this);
+        self::assertTrue($this->event_manager->has_listeners(self::PRE_FOO));
+        self::assertTrue($this->event_manager->has_listeners(self::POST_FOO));
+        self::assertCount(1, $this->event_manager->get_listeners(self::PRE_FOO));
+        self::assertCount(1, $this->event_manager->get_listeners(self::POST_FOO));
+        self::assertCount(2, $this->event_manager->get_all_listeners());
+        self::assertSame(['preFoo', 'postFoo'], array_keys($this->event_manager->get_all_listeners()));
     }
 
     public function testDispatchEvent(): void
     {
-        $this->eventManager->addEventListener(['preFoo', 'postFoo'], $this);
-        $this->eventManager->dispatchEvent(self::PRE_FOO);
+        $this->event_manager->add_event_listener(['preFoo', 'postFoo'], $this);
+        $this->event_manager->dispatch_event(self::PRE_FOO);
         self::assertTrue($this->preFooInvoked);
         self::assertFalse($this->postFooInvoked);
     }
 
     public function testRemoveEventListener(): void
     {
-        $this->eventManager->addEventListener(['preBar'], $this);
-        self::assertTrue($this->eventManager->hasListeners(self::PRE_BAR));
-        $this->eventManager->removeEventListener(['preBar'], $this);
-        self::assertFalse($this->eventManager->hasListeners(self::PRE_BAR));
+        $this->event_manager->add_event_listener(['preBar'], $this);
+        self::assertTrue($this->event_manager->has_listeners(self::PRE_BAR));
+        $this->event_manager->remove_event_listener(['preBar'], $this);
+        self::assertFalse($this->event_manager->has_listeners(self::PRE_BAR));
     }
 
     public function testAddEventSubscriber(): void
     {
-        $eventSubscriber = new TestEventSubscriber();
-        $this->eventManager->addEventSubscriber($eventSubscriber);
-        self::assertTrue($this->eventManager->hasListeners(self::PRE_FOO));
-        self::assertTrue($this->eventManager->hasListeners(self::POST_FOO));
+        $event_subscriber = new Test_Event_Subscriber();
+        $this->event_manager->add_event_subscriber($event_subscriber);
+        self::assertTrue($this->event_manager->has_listeners(self::PRE_FOO));
+        self::assertTrue($this->event_manager->has_listeners(self::POST_FOO));
     }
 
     public function testRemoveEventSubscriber(): void
     {
-        $eventSubscriber = new TestEventSubscriber();
-        $this->eventManager->addEventSubscriber($eventSubscriber);
-        $this->eventManager->removeEventSubscriber($eventSubscriber);
-        self::assertFalse($this->eventManager->hasListeners(self::PRE_FOO));
-        self::assertFalse($this->eventManager->hasListeners(self::POST_FOO));
+        $event_subscriber = new Test_Event_Subscriber();
+        $this->event_manager->add_event_subscriber($event_subscriber);
+        $this->event_manager->remove_event_subscriber($event_subscriber);
+        self::assertFalse($this->event_manager->has_listeners(self::PRE_FOO));
+        self::assertFalse($this->event_manager->has_listeners(self::POST_FOO));
     }
 
     public function testNoDispatchingForUnregisteredEvent(): void
     {
-        $reflection = new ReflectionProperty(EventArgs::class, 'emptyEventArgsInstance');
+        $reflection = new ReflectionProperty(Event_Args::class, 'empty_event_args_instance');
         $reflection->setValue(null, null);
 
-        $this->eventManager->dispatchEvent('unknown');
+        $this->event_manager->dispatch_event('unknown');
 
         self::assertNull($reflection->getValue(null));
     }
 
     public function testEmptyListenersListForUnregisteredEvent(): void
     {
-        self::assertSame([], $this->eventManager->getListeners('unknown'));
+        self::assertSame([], $this->event_manager->get_listeners('unknown'));
     }
 
     /* Listener methods */
 
-    public function preFoo(EventArgs $e): void
+    public function preFoo(Event_Args $e): void
     {
         $this->preFooInvoked = true;
     }
 
-    public function postFoo(EventArgs $e): void
+    public function postFoo(Event_Args $e): void
     {
         $this->postFooInvoked = true;
     }
 }
 
-class TestEventSubscriber implements EventSubscriber
+class Test_Event_Subscriber implements Event_Subscriber
 {
     /** @return string[] */
-    public function getSubscribedEvents(): array
+    public function get_subscribed_events(): array
     {
         return ['preFoo', 'postFoo'];
     }

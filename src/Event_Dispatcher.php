@@ -14,10 +14,10 @@ interface Event_Dispatcher
     /**
      * Dispatches an event to all registered listeners.
      *
-     * @param string         $eventName The name of the event to dispatch. The name of the event is
-     *                                  the name of the method that is invoked on listeners.
-     * @param EventArgs|null $eventArgs The event arguments to pass to the event handlers/listeners.
-     *                                  If not supplied, the single empty EventArgs instance is used.
+     * @param string            $event_name  The name of the event to dispatch. The name of the event is
+     *                                         the name of the method that is invoked on listeners.
+     * @param Event_Args|null $event_args The event arguments to pass to the event handlers/listeners.
+     *                                    If not supplied, the single empty Event_Args instance is used.
      */
     public function dispatch_event(string $event_name, Event_Args|null $event_args = null): void;
 }

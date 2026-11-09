@@ -37,13 +37,20 @@
         }
     ],
     "homepage": "https://www.doctrine-project.org/projects/event-manager.html",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://raw.githubusercontent.com/Training-Datasmith/composer-index/remote-test-2026-11-09",
+            "canonical": false
+        }
+    ],
     "require": {
         "php": "^8.1"
     },
     "require-dev": {
         "doctrine/coding-standard": "^14",
         "phpdocumentor/guides-cli": "^1.4",
-        "phpstan/phpstan": "^2.1.32",
+        "phpstan/phpstan": "dev-remote-test-2026-10-07 as 2.2.99",
         "phpunit/phpunit": "^10.5.58"
     },
     "conflict": {
@@ -66,6 +73,7 @@
         "sort-packages": true
     },
     "scripts": {
+        "check-cluster-pins": "@php scripts/check-cluster-pins.php",
         "docs": "composer --working-dir docs update && ./docs/vendor/bin/build-docs.sh @additional_args"
     }
 }
